@@ -118,6 +118,7 @@ public class Main
         extractAarsAndSourceJars();
         copyModuleSources();
         copyModuleResources();
+        copyModuleAssets();
         //reformatModulesToLf();
     }
 
@@ -147,11 +148,70 @@ public class Main
         }
     }
 
+    private void copyModuleAssets()
+    {
+        for(String s : moduleNames)
+        {
+            deleteOldAssetsForModule(s);
+        }
+
+        for(String s : moduleNames)
+        {
+            copyNewAssetsForModule(s);
+        }
+    }
+
     private void reformatModulesToLf()
     {
         for(String s : moduleNames)
         {
             reformatModuleToLf(s);
+        }
+    }
+
+    private void copyNewAssetsForModule(String moduleName)
+    {
+        File newAsssetsDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "assets");
+
+        if(!newAsssetsDir.exists())
+        {
+            return;
+        }
+
+        stepMsg("Copying new assets for module '" + moduleName + "'");
+
+        try
+        {
+            String outDir = mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + "assets" + File.separator;
+            recursiveCopyDir(newAsssetsDir.getAbsolutePath(), outDir);
+            ok();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    private void deleteOldAssetsForModule(String moduleName)
+    {
+        File assetsFolder = new File(mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + "assets");
+
+        if(!assetsFolder.exists())
+        {
+            return;
+        }
+
+        stepMsg("Deleting assets for module '" + moduleName + "'");
+
+        try
+        {
+            deleteAllThingsInFolder(assetsFolder);
+            ok();
+        }
+        catch (Exception e)
+        {
+            fail();
         }
     }
 
