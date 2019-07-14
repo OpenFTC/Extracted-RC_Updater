@@ -117,7 +117,8 @@ public class Main
         prepareTempDir();
         extractAarsAndSourceJars();
         copyModuleSources();
-        reformatModulesToLf();
+        copyModuleResources();
+        //reformatModulesToLf();
     }
 
     private void copyModuleSources()
@@ -133,11 +134,61 @@ public class Main
         }
     }
 
+    private void copyModuleResources()
+    {
+        for(String s : moduleNames)
+        {
+            deleteOldResourcesForModule(s);
+        }
+
+        for(String s : moduleNames)
+        {
+            copyNewResourcesForModule(s);
+        }
+    }
+
     private void reformatModulesToLf()
     {
         for(String s : moduleNames)
         {
             reformatModuleToLf(s);
+        }
+    }
+
+    private void copyNewResourcesForModule(String moduleName)
+    {
+        stepMsg("Copying new resources for module '" + moduleName + "'");
+
+        try
+        {
+            File newResourcesDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "res");
+
+            for(File f : newResourcesDir.listFiles())
+            {
+                String outDir = mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + "res" + File.separator + f.getName();
+                recursiveCopyDir(f.getAbsolutePath(), outDir);
+            }
+            ok();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    private void deleteOldResourcesForModule(String moduleName)
+    {
+        stepMsg("Deleting resources for module '" + moduleName + "'");
+
+        try
+        {
+            deleteAllThingsInFolder(new File(mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + "res"));
+            ok();
+        }
+        catch (Exception e)
+        {
+            fail();
         }
     }
 
