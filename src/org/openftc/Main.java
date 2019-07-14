@@ -76,6 +76,7 @@ public class Main
 
     private boolean waitingForFailOrOk = false;
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
+    private static final String MANIFEST_NAME = "AndroidManifest.xml";
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException
     {
@@ -120,6 +121,7 @@ public class Main
         copyModuleResources();
         copyModuleAssets();
         copyModuleLibs();
+        copyModuleManifests();
         //reformatModulesToLf();
     }
 
@@ -175,11 +177,59 @@ public class Main
         }
     }
 
+    private void copyModuleManifests()
+    {
+        for(String s : moduleNames)
+        {
+            deleteOldManifestForModule(s);
+        }
+
+        for(String s : moduleNames)
+        {
+            copyNewManifestForModule(s);
+        }
+    }
+
     private void reformatModulesToLf()
     {
         for(String s : moduleNames)
         {
             reformatModuleToLf(s);
+        }
+    }
+
+    private void copyNewManifestForModule(String moduleName)
+    {
+        stepMsg("Copying new manifest file for module '" + moduleName + "'");
+
+        String newManifestFilePath = mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + MANIFEST_NAME;
+        String destPath = mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + MANIFEST_NAME;
+
+        try
+        {
+            Files.copy(Paths.get(newManifestFilePath), Paths.get(destPath));
+            ok();
+        }
+        catch (Exception e)
+        {
+            fail();
+        }
+    }
+
+    private void deleteOldManifestForModule(String moduleName)
+    {
+        stepMsg("Deleting manifest for module '" + moduleName + "'");
+
+        File manifestFile = new File(mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + MANIFEST_NAME);
+
+        try
+        {
+            manifestFile.delete();
+            ok();
+        }
+        catch (Exception e)
+        {
+            fail();
         }
     }
 
