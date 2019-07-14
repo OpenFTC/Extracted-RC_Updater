@@ -74,6 +74,19 @@ public class Main
             "RobotCore",
             "RobotServer"};
 
+    String[] extsToReformatToLf = {
+            ".txt",
+            ".java",
+            ".xml",
+            ".js",
+            ".css",
+            ".html",
+            ".glsl",
+            ".blk",
+            ".svg",
+            ".less"
+    };
+
     private boolean waitingForFailOrOk = false;
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
     private static final String MANIFEST_NAME = "AndroidManifest.xml";
@@ -122,7 +135,7 @@ public class Main
         copyModuleAssets();
         copyModuleLibs();
         copyModuleManifests();
-        //reformatModulesToLf();
+        reformatModulesToLf();
     }
 
     private void copyModuleSources()
@@ -401,11 +414,11 @@ public class Main
 
     private void reformatModuleToLf(String moduleName)
     {
-        stepMsg("Recursively reformatting module '" + moduleName + "' to LF line endings");
+        stepMsg("Reformatting module '" + moduleName + "' to LF line endings");
 
         try
         {
-            recursiveReformatToLf(mergeDir +File.separator + moduleName + File.separator + "src");
+            recursiveReformatToLf(mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main", extsToReformatToLf);
             ok();
         }
         catch (Exception e)
@@ -561,7 +574,7 @@ public class Main
         waitingForFailOrOk = true;
     }
 
-    private static void deleteAllThingsInFolder(File folder)
+    private void deleteAllThingsInFolder(File folder)
     {
         File[] files = folder.listFiles();
 
@@ -584,7 +597,7 @@ public class Main
         }
     }
 
-    private static void deleteFolder(File folder)
+    private void deleteFolder(File folder)
     {
         deleteAllThingsInFolder(folder);
 
@@ -594,7 +607,7 @@ public class Main
         }
     }
 
-    private static void recursiveCopyDir(String in, String out) throws IOException
+    private void recursiveCopyDir(String in, String out) throws IOException
     {
         for(File f : new File(in).listFiles())
         {
@@ -610,21 +623,33 @@ public class Main
         }
     }
 
-    private static void recursiveReformatToLf(String dir) throws IOException
+    private void recursiveReformatToLf(String dir, String[] extsToReformatToLf) throws IOException
     {
         for(File f : new File(dir).listFiles())
         {
             if(f.isDirectory())
             {
-                recursiveReformatToLf(f.getAbsolutePath());
+                recursiveReformatToLf(f.getAbsolutePath(), extsToReformatToLf);
             }
             else
             {
-                Charset charset = StandardCharsets.UTF_8;
-                String fileContent = new String(Files.readAllBytes(Paths.get(f.getAbsolutePath())), charset);
-                fileContent = fileContent.replaceAll("\r\n", "\n");
-                Files.write(Paths.get(f.getAbsolutePath()), fileContent.getBytes(charset));
+                for(String ext : extsToReformatToLf)
+                {
+                    if(f.getName().endsWith(ext))
+                    {
+                        reformatToLf(f);
+                        break;
+                    }
+                }
             }
         }
+    }
+
+    private void reformatToLf(File f) throws IOException
+    {
+        Charset charset = StandardCharsets.UTF_8;
+        String fileContent = new String(Files.readAllBytes(Paths.get(f.getAbsolutePath())), charset);
+        fileContent = fileContent.replaceAll("\r\n", "\n");
+        Files.write(Paths.get(f.getAbsolutePath()), fileContent.getBytes(charset));
     }
 }
