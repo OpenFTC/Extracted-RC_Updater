@@ -119,6 +119,7 @@ public class Main
         copyModuleSources();
         copyModuleResources();
         copyModuleAssets();
+        copyModuleLibs();
         //reformatModulesToLf();
     }
 
@@ -161,11 +162,70 @@ public class Main
         }
     }
 
+    private void copyModuleLibs()
+    {
+        for(String s : moduleNames)
+        {
+            deleteOldLibsForModule(s);
+        }
+
+        for(String s : moduleNames)
+        {
+            copyNewLibsForModule(s);
+        }
+    }
+
     private void reformatModulesToLf()
     {
         for(String s : moduleNames)
         {
             reformatModuleToLf(s);
+        }
+    }
+
+    private void copyNewLibsForModule(String moduleName)
+    {
+        File newLibsDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "libs");
+
+        if(!newLibsDir.exists())
+        {
+            return;
+        }
+
+        stepMsg("Copying new libs for module '" + moduleName + "'");
+
+        try
+        {
+            String outDir = mergeDir + File.separator + moduleName + File.separator + "libs";
+            recursiveCopyDir(newLibsDir.getAbsolutePath(), outDir);
+            ok();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    private void deleteOldLibsForModule(String moduleName)
+    {
+        File libsFolder = new File(mergeDir + File.separator + moduleName + File.separator + "libs");
+
+        if(!libsFolder.exists())
+        {
+            return;
+        }
+
+        stepMsg("Deleting libs for module '" + moduleName + "'");
+
+        try
+        {
+            deleteAllThingsInFolder(libsFolder);
+            ok();
+        }
+        catch (Exception e)
+        {
+            fail();
         }
     }
 
