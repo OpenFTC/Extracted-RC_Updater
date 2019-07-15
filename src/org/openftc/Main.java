@@ -125,6 +125,13 @@ public class Main
 
     private void run() throws IOException, NoSuchAlgorithmException
     {
+        System.out.println();
+        System.out.println("This script is intended to be used by the primary maintainer of ExtractedRC ONLY.");
+        System.out.println("Press Control-C to exit if you are just an OpenRC user.");
+        pause();
+        System.out.println("Please ensure that you have closed the project in Android Studio");
+        pause();
+
         ensureWeAreInExtractedRcRepo();
         checkThatStockSdkHasAars();
         prepareTempDir();
@@ -673,5 +680,18 @@ public class Main
         System.out.println("1. Remove the version code and name for each library from its manifest");
         System.out.println("2. Update the version code and name for each library in its build.gradle file");
         System.out.println("3. Use AS to reformat all text files to LF line endings (select root project folder, File -> Line Endings -> LF)");
+    }
+
+    private void pause()
+    {
+        System.out.println("Press Enter continue...");
+        try
+        {
+            System.in.read();
+        }
+        catch(Exception e)
+        {
+
+        }
     }
 }
