@@ -211,7 +211,7 @@ public class Main
 
         try
         {
-            String outDir = getSrcMainPathForModule(moduleName) + File.separator + "jniLibs";
+            String outDir = getPathForFolderInModuleSrcMain(moduleName, "jniLibs");
             recursiveCopyDir(newJniLibsDir.getAbsolutePath(), outDir);
             ok();
         }
@@ -224,7 +224,7 @@ public class Main
 
     private void deleteOldNativeLibsForModule(String moduleName)
     {
-        File jniLibsFolder = new File(getSrcMainPathForModule(moduleName) + File.separator + "jniLibs");
+        File jniLibsFolder = new File(getPathForFolderInModuleSrcMain(moduleName, "jniLibs"));
 
         if(!jniLibsFolder.exists())
         {
@@ -303,7 +303,7 @@ public class Main
 
         try
         {
-            String outDir = getSrcMainPathForModule(moduleName) + File.separator + "assets" + File.separator;
+            String outDir = getPathForFolderInModuleSrcMain(moduleName, "assets");
             recursiveCopyDir(newAsssetsDir.getAbsolutePath(), outDir);
             ok();
         }
@@ -316,7 +316,7 @@ public class Main
 
     private void deleteOldAssetsForModule(String moduleName)
     {
-        File assetsFolder = new File(getSrcMainPathForModule(moduleName) + File.separator + "assets");
+        File assetsFolder = new File(getPathForFolderInModuleSrcMain(moduleName, "assets"));
 
         if(!assetsFolder.exists())
         {
@@ -346,7 +346,7 @@ public class Main
 
             for(File f : newResourcesDir.listFiles())
             {
-                String outDir = getSrcMainPathForModule(moduleName) + File.separator + "res" + File.separator + f.getName();
+                String outDir = getPathForFolderInModuleSrcMain(moduleName, "res") + File.separator + f.getName();
                 recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
             ok();
@@ -364,7 +364,7 @@ public class Main
 
         try
         {
-            deleteAllThingsInFolder(new File(getSrcMainPathForModule(moduleName) + File.separator + "res"));
+            deleteAllThingsInFolder(new File(getPathForFolderInModuleSrcMain(moduleName, "res")));
             ok();
         }
         catch (Exception e)
@@ -379,7 +379,7 @@ public class Main
 
         try
         {
-            deleteAllThingsInFolder(new File(getSrcMainPathForModule(moduleName) + File.separator + "java"));
+            deleteAllThingsInFolder(new File(getPathForFolderInModuleSrcMain(moduleName, "java")));
             ok();
         }
         catch (Exception e)
@@ -398,7 +398,7 @@ public class Main
 
             for(File f : newJavaSourceDir.listFiles())
             {
-                String outDir = getSrcMainPathForModule(moduleName) + File.separator + "java" + File.separator + f.getName();
+                String outDir = getPathForFolderInModuleSrcMain(moduleName, "java") + File.separator + f.getName();
                 recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
             ok();
@@ -523,6 +523,11 @@ public class Main
     private String getSrcMainPathForModule(String moduleName)
     {
         return mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main";
+    }
+
+    private String getPathForFolderInModuleSrcMain(String moduleName, String folderName)
+    {
+        return getSrcMainPathForModule(moduleName) + File.separator + folderName;
     }
 
     private void fail()
