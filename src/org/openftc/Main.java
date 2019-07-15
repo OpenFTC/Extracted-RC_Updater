@@ -58,6 +58,8 @@ public class Main
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
     private static final String MANIFEST_NAME = "AndroidManifest.xml";
 
+    private String TEMP_FOLDER_PATH;
+
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException
     {
         System.out.println("ExtractedRC_Updater v1.0");
@@ -165,7 +167,7 @@ public class Main
     {
         stepMsg("Copying new manifest file for module '" + moduleName + "'");
 
-        String newManifestFilePath = mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + MANIFEST_NAME;
+        String newManifestFilePath = TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + MANIFEST_NAME;
         String destPath = mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + MANIFEST_NAME;
 
         try
@@ -198,7 +200,7 @@ public class Main
 
     private void copyNewNativeLibsForModule(String moduleName)
     {
-        File newJniLibsDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "jni");
+        File newJniLibsDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "jni");
 
         if(!newJniLibsDir.exists())
         {
@@ -244,7 +246,7 @@ public class Main
 
     private void copyNewLibsForModule(String moduleName)
     {
-        File newLibsDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "libs");
+        File newLibsDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "libs");
 
         if(!newLibsDir.exists())
         {
@@ -290,7 +292,7 @@ public class Main
 
     private void copyNewAssetsForModule(String moduleName)
     {
-        File newAsssetsDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "assets");
+        File newAsssetsDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "assets");
 
         if(!newAsssetsDir.exists())
         {
@@ -340,7 +342,7 @@ public class Main
 
         try
         {
-            File newResourcesDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "res");
+            File newResourcesDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "res");
 
             for(File f : newResourcesDir.listFiles())
             {
@@ -392,7 +394,7 @@ public class Main
 
         try
         {
-            File newJavaSourceDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-sources");
+            File newJavaSourceDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-sources");
 
             for(File f : newJavaSourceDir.listFiles())
             {
@@ -445,7 +447,9 @@ public class Main
 
     private void prepareTempDir()
     {
-        File tempDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME);
+        TEMP_FOLDER_PATH = mergeDir + File.separator + TEMP_FOLDER_NAME;
+
+        File tempDir = new File(TEMP_FOLDER_PATH);
 
         stepMsg("Deleting temporary folder in merge directory if it exists");
 
@@ -480,7 +484,7 @@ public class Main
 
         try
         {
-            new ZipFile(makeFileForModuleAar(aarName)).extractAll(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + aarName + "-aar");
+            new ZipFile(makeFileForModuleAar(aarName)).extractAll(TEMP_FOLDER_PATH + File.separator + aarName + "-aar");
             ok();
         }
         catch (Exception e)
@@ -496,7 +500,7 @@ public class Main
 
         try
         {
-            new ZipFile(makeFileForModuleSourcesJar(jarName)).extractAll(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + jarName + "-sources");
+            new ZipFile(makeFileForModuleSourcesJar(jarName)).extractAll(TEMP_FOLDER_PATH + File.separator + jarName + "-sources");
             ok();
         }
         catch (Exception e)
