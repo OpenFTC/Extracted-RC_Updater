@@ -73,19 +73,6 @@ public class Main
             "RobotCore",
             "RobotServer"};
 
-    String[] extsToReformatToLf = {
-            ".txt",
-            ".java",
-            ".xml",
-            ".js",
-            ".css",
-            ".html",
-            ".glsl",
-            ".blk",
-            ".svg",
-            ".less"
-    };
-
     private boolean waitingForFailOrOk = false;
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
     private static final String MANIFEST_NAME = "AndroidManifest.xml";
@@ -99,7 +86,7 @@ public class Main
         JCommander jCommander =
                 JCommander.newBuilder()
                         .addObject(instance)
-                        .programName("java -jar AAR_Repackager.jar")
+                        .programName("java -jar ExtractedRC_Updater.jar")
                         .build();
 
         try
@@ -108,7 +95,7 @@ public class Main
 
             if (instance.help)
             {
-                System.out.println("AAR/JAR Repackager v1.0");
+                System.out.println("ExtractedRC Updater v1.0");
                 jCommander.usage();
             }
             else
@@ -135,93 +122,121 @@ public class Main
         ensureWeAreInExtractedRcRepo();
         checkThatStockSdkHasAars();
         prepareTempDir();
-        extractAarsAndSourceJars();
-        copyModuleSources();
-        copyModuleResources();
-        copyModuleAssets();
-        copyModuleLibs();
-        copyModuleManifests();
-        copyModuleNativeLibs();
+        //extractAarsAndSourceJars();
+        //copyModuleSources();
+        //copyModuleResources();
+        //copyModuleAssets();
+        //copyModuleLibs();
+        //copyModuleManifests();
+        //copyModuleNativeLibs();
+
+        for(String s : moduleNames)
+        {
+            processModule(s);
+        }
+
         checklist();
     }
 
-    private void copyModuleSources()
+    private void processModule(String s)
     {
-        for (String s : moduleNames)
-        {
-            deleteOldSourceForModule(s);
-        }
+        System.out.println("===============================================================");
+        System.out.println("= Processing module: " + "'" + s + "'");
+        System.out.println("===============================================================");
 
-        for(String s : moduleNames)
-        {
-            copySourceForModule(s);
-        }
+        extractAarToTempDir(s);
+        extractSourcesJarToTempDir(s);
+        deleteOldSourceForModule(s);
+        copySourceForModule(s);
+        deleteOldResourcesForModule(s);
+        copyNewResourcesForModule(s);
+        deleteOldAssetsForModule(s);
+        copyNewAssetsForModule(s);
+        deleteOldLibsForModule(s);
+        copyNewLibsForModule(s);
+        deleteOldManifestForModule(s);
+        copyNewManifestForModule(s);
+        deleteOldNativeLibsForModule(s);
+        copyNewNativeLibsForModule(s);
     }
 
-    private void copyModuleResources()
-    {
-        for(String s : moduleNames)
-        {
-            deleteOldResourcesForModule(s);
-        }
-
-        for(String s : moduleNames)
-        {
-            copyNewResourcesForModule(s);
-        }
-    }
-
-    private void copyModuleAssets()
-    {
-        for(String s : moduleNames)
-        {
-            deleteOldAssetsForModule(s);
-        }
-
-        for(String s : moduleNames)
-        {
-            copyNewAssetsForModule(s);
-        }
-    }
-
-    private void copyModuleLibs()
-    {
-        for(String s : moduleNames)
-        {
-            deleteOldLibsForModule(s);
-        }
-
-        for(String s : moduleNames)
-        {
-            copyNewLibsForModule(s);
-        }
-    }
-
-    private void copyModuleManifests()
-    {
-        for(String s : moduleNames)
-        {
-            deleteOldManifestForModule(s);
-        }
-
-        for(String s : moduleNames)
-        {
-            copyNewManifestForModule(s);
-        }
-    }
-
-    private void copyModuleNativeLibs()
-    {
-        for(String s : moduleNames)
-        {
-            deleteOldNativeLibsForModule(s);
-        }
-
-        for(String s : moduleNames)
-        {
-            copyNewNativeLibsForModule(s);
-        }
-    }
+//    private void copyModuleSources()
+//    {
+//        for (String s : moduleNames)
+//        {
+//            deleteOldSourceForModule(s);
+//        }
+//
+//        for(String s : moduleNames)
+//        {
+//            copySourceForModule(s);
+//        }
+//    }
+//
+//    private void copyModuleResources()
+//    {
+//        for(String s : moduleNames)
+//        {
+//            deleteOldResourcesForModule(s);
+//        }
+//
+//        for(String s : moduleNames)
+//        {
+//            copyNewResourcesForModule(s);
+//        }
+//    }
+//
+//    private void copyModuleAssets()
+//    {
+//        for(String s : moduleNames)
+//        {
+//            deleteOldAssetsForModule(s);
+//        }
+//
+//        for(String s : moduleNames)
+//        {
+//            copyNewAssetsForModule(s);
+//        }
+//    }
+//
+//    private void copyModuleLibs()
+//    {
+//        for(String s : moduleNames)
+//        {
+//            deleteOldLibsForModule(s);
+//        }
+//
+//        for(String s : moduleNames)
+//        {
+//            copyNewLibsForModule(s);
+//        }
+//    }
+//
+//    private void copyModuleManifests()
+//    {
+//        for(String s : moduleNames)
+//        {
+//            deleteOldManifestForModule(s);
+//        }
+//
+//        for(String s : moduleNames)
+//        {
+//            copyNewManifestForModule(s);
+//        }
+//    }
+//
+//    private void copyModuleNativeLibs()
+//    {
+//        for(String s : moduleNames)
+//        {
+//            deleteOldNativeLibsForModule(s);
+//        }
+//
+//        for(String s : moduleNames)
+//        {
+//            copyNewNativeLibsForModule(s);
+//        }
+//    }
 
     private void copyNewManifestForModule(String moduleName)
     {
