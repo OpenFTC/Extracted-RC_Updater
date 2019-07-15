@@ -118,20 +118,47 @@ public class Main
         System.out.println("= Processing module: " + "'" + s + "'");
         System.out.println("===============================================================");
 
+        /*
+         * Extract the archives
+         */
         extractAarToTempDir(s);
         extractSourcesJarToTempDir(s);
+
+        /*
+         * Source code
+         */
         deleteOldSourceForModule(s);
         copySourceForModule(s);
+
+        /*
+         * Resources
+         */
         deleteOldResourcesForModule(s);
         copyNewResourcesForModule(s);
+
+        /*
+         * Assets
+         */
         deleteOldAssetsForModule(s);
         copyNewAssetsForModule(s);
+
+        /*
+         * Libs
+         */
         deleteOldLibsForModule(s);
         copyNewLibsForModule(s);
-        deleteOldManifestForModule(s);
-        copyNewManifestForModule(s);
+
+        /*
+         * Native libs
+         */
         deleteOldNativeLibsForModule(s);
         copyNewNativeLibsForModule(s);
+
+        /*
+         * Manifest
+         */
+        deleteOldManifestForModule(s);
+        copyNewManifestForModule(s);
     }
 
     private void copyNewManifestForModule(String moduleName)
