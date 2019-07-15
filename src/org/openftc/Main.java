@@ -44,14 +44,53 @@ public class Main
     @Parameter(names = {"-s", "--stock-dir"}, description = "SDK Directory", required = true)
     private String stockDir;
 
-    String[] moduleNames = {
-            "Blocks",
-            "FtcCommon",
-            "Hardware",
-            "Inspection",
-            "OnBotJava",
-            "RobotCore",
-            "RobotServer"};
+    enum Location
+    {
+        MERGE,
+        NEW
+    }
+
+    enum Module
+    {
+        ROBOTCORE  ("RobotCore"),
+        FTCCOMMON  ("FtcCommon"),
+        HARDWARE   ("Hardware"),
+        INSPECTION ("Inspection"),
+        ONBOTJAVA  ("OnBotJava"),
+        BLOCKS     ("Blocks"),
+        ROBOTSERVER("RobotServer");
+
+        String name;
+
+        Module(String name)
+        {
+            this.name = name;
+        }
+    }
+
+    enum Archive
+    {
+        AAR,
+        SOURCE_JAR
+    }
+
+    enum ModuleFolder
+    {
+        JAVA_SOURCE (Archive.SOURCE_JAR, "java"   ),
+        ASSETS      (Archive.AAR,        "assets" ),
+        LIBS        (Archive.AAR,        "libs"   ),
+        NATIVE_LIBS (Archive.AAR,        "jniLibs"),
+        RESOURCES   (Archive.AAR,        "res"    );
+
+        Archive archive;
+        String name;
+
+        ModuleFolder(Archive archive, String name)
+        {
+            this.archive = archive;
+            this.name = name;
+        }
+    }
 
     private boolean waitingForFailOrOk = false;
     private int lengthOfLastStepMsg = 0;
@@ -106,69 +145,69 @@ public class Main
         checkThatStockSdkHasAars();
         prepareTempDir();
 
-        for(String s : moduleNames)
+        for(Module module : Module.values())
         {
-            processModule(s);
+            processModule(module);
         }
 
         checklist();
     }
 
-    private void processModule(String s)
+    private void processModule(Module module)
     {
         System.out.println("===============================================================");
-        System.out.println("= Processing module: " + "'" + s + "'");
+        System.out.println("= Processing module: " + "'" + module.name + "'");
         System.out.println("===============================================================");
 
         /*
          * Extract the archives
          */
-        extractAarToTempDir(s);
-        extractSourcesJarToTempDir(s);
+        extractAarToTempDir(module);
+        extractSourcesJarToTempDir(module);
 
         /*
          * Source code
          */
-        deleteOldSourceForModule(s);
-        copySourceForModule(s);
+        deleteOldSourceForModule(module);
+        copySourceForModule(module);
 
         /*
          * Resources
          */
-        deleteOldResourcesForModule(s);
-        copyNewResourcesForModule(s);
+        deleteOldResourcesForModule(module);
+        copyNewResourcesForModule(module);
 
         /*
          * Assets
          */
-        deleteOldAssetsForModule(s);
-        copyNewAssetsForModule(s);
+        deleteOldAssetsForModule(module);
+        copyNewAssetsForModule(module);
 
         /*
          * Libs
          */
-        deleteOldLibsForModule(s);
-        copyNewLibsForModule(s);
+        deleteOldLibsForModule(module);
+        copyNewLibsForModule(module);
 
         /*
          * Native libs
          */
-        deleteOldNativeLibsForModule(s);
-        copyNewNativeLibsForModule(s);
+        deleteOldNativeLibsForModule(module);
+        copyNewNativeLibsForModule(module);
 
         /*
          * Manifest
          */
-        deleteOldManifestForModule(s);
-        copyNewManifestForModule(s);
+        deleteOldManifestForModule(module);
+        copyNewManifestForModule(module);
     }
 
-    private void copyNewManifestForModule(String moduleName)
+    private void copyNewManifestForModule(Module module)
     {
-        stepMsg("Copying new manifest file for module '" + moduleName + "'");
+        stepMsg("Copying new manifest file for module '" + module.name + "'");
 
-        String newManifestFilePath = TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + MANIFEST_NAME;
-        String destPath = getSrcMainPathForModule(moduleName) + File.separator + MANIFEST_NAME;
+        String newManifestFilePath = TEMP_FOLDER_PATH + File.separator + module.name + "-aar" + File.separator + MANIFEST_NAME;
+        String destPath = getSrcMainPathForModule(module) + File.separator + MANIFEST_NAME;
 
         try
         {
@@ -181,11 +220,11 @@ public class Main
         }
     }
 
-    private void deleteOldManifestForModule(String moduleName)
+    private void deleteOldManifestForModule(Module module)
     {
-        stepMsg("Deleting manifest for module '" + moduleName + "'");
+        stepMsg("Deleting manifest for module '" + module.name + "'");
 
-        File manifestFile = new File(getSrcMainPathForModule(moduleName) + File.separator + MANIFEST_NAME);
+        File manifestFile = new File(getSrcMainPathForModule(module) + File.separator + MANIFEST_NAME);
 
         try
         {
@@ -198,20 +237,20 @@ public class Main
         }
     }
 
-    private void copyNewNativeLibsForModule(String moduleName)
+    private void copyNewNativeLibsForModule(Module module)
     {
-        File newJniLibsDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "jni");
+        File newJniLibsDir = new File(TEMP_FOLDER_PATH + File.separator + module.name + "-aar" + File.separator + "jni");
 
         if(!newJniLibsDir.exists())
         {
             return;
         }
 
-        stepMsg("Copying new native libs for module '" + moduleName + "'");
+        stepMsg("Copying new native libs for module '" + module.name + "'");
 
         try
         {
-            String outDir = getPathForFolderInModuleSrcMain(moduleName, "jniLibs");
+            String outDir = getPathForFolderInModuleSrcMain(module, "jniLibs");
             recursiveCopyDir(newJniLibsDir.getAbsolutePath(), outDir);
             ok();
         }
@@ -222,16 +261,16 @@ public class Main
         }
     }
 
-    private void deleteOldNativeLibsForModule(String moduleName)
+    private void deleteOldNativeLibsForModule(Module module)
     {
-        File jniLibsFolder = new File(getPathForFolderInModuleSrcMain(moduleName, "jniLibs"));
+        File jniLibsFolder = new File(getPathForFolderInModuleSrcMain(module, "jniLibs"));
 
         if(!jniLibsFolder.exists())
         {
             return;
         }
 
-        stepMsg("Deleting native libs for module '" + moduleName + "'");
+        stepMsg("Deleting native libs for module '" + module.name + "'");
 
         try
         {
@@ -244,20 +283,20 @@ public class Main
         }
     }
 
-    private void copyNewLibsForModule(String moduleName)
+    private void copyNewLibsForModule(Module module)
     {
-        File newLibsDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "libs");
+        File newLibsDir = new File(TEMP_FOLDER_PATH + File.separator + module.name + "-aar" + File.separator + "libs");
 
         if(!newLibsDir.exists())
         {
             return;
         }
 
-        stepMsg("Copying new libs for module '" + moduleName + "'");
+        stepMsg("Copying new libs for module '" + module.name + "'");
 
         try
         {
-            String outDir = mergeDir + File.separator + moduleName + File.separator + "libs";
+            String outDir = mergeDir + File.separator + module.name + File.separator + "libs";
             recursiveCopyDir(newLibsDir.getAbsolutePath(), outDir);
             ok();
         }
@@ -268,16 +307,16 @@ public class Main
         }
     }
 
-    private void deleteOldLibsForModule(String moduleName)
+    private void deleteOldLibsForModule(Module module)
     {
-        File libsFolder = new File(mergeDir + File.separator + moduleName + File.separator + "libs");
+        File libsFolder = new File(mergeDir + File.separator + module.name + File.separator + "libs");
 
         if(!libsFolder.exists())
         {
             return;
         }
 
-        stepMsg("Deleting libs for module '" + moduleName + "'");
+        stepMsg("Deleting libs for module '" + module.name + "'");
 
         try
         {
@@ -290,20 +329,20 @@ public class Main
         }
     }
 
-    private void copyNewAssetsForModule(String moduleName)
+    private void copyNewAssetsForModule(Module module)
     {
-        File newAsssetsDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "assets");
+        File newAsssetsDir = new File(TEMP_FOLDER_PATH + File.separator + module.name + "-aar" + File.separator + "assets");
 
         if(!newAsssetsDir.exists())
         {
             return;
         }
 
-        stepMsg("Copying new assets for module '" + moduleName + "'");
+        stepMsg("Copying new assets for module '" + module.name + "'");
 
         try
         {
-            String outDir = getPathForFolderInModuleSrcMain(moduleName, "assets");
+            String outDir = getPathForFolderInModuleSrcMain(module, "assets");
             recursiveCopyDir(newAsssetsDir.getAbsolutePath(), outDir);
             ok();
         }
@@ -314,16 +353,16 @@ public class Main
         }
     }
 
-    private void deleteOldAssetsForModule(String moduleName)
+    private void deleteOldAssetsForModule(Module module)
     {
-        File assetsFolder = new File(getPathForFolderInModuleSrcMain(moduleName, "assets"));
+        File assetsFolder = new File(getPathForFolderInModuleSrcMain(module, "assets"));
 
         if(!assetsFolder.exists())
         {
             return;
         }
 
-        stepMsg("Deleting assets for module '" + moduleName + "'");
+        stepMsg("Deleting assets for module '" + module.name + "'");
 
         try
         {
@@ -336,17 +375,17 @@ public class Main
         }
     }
 
-    private void copyNewResourcesForModule(String moduleName)
+    private void copyNewResourcesForModule(Module module)
     {
-        stepMsg("Copying new resources for module '" + moduleName + "'");
+        stepMsg("Copying new resources for module '" + module.name + "'");
 
         try
         {
-            File newResourcesDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-aar" + File.separator + "res");
+            File newResourcesDir = new File(TEMP_FOLDER_PATH + File.separator + module.name + "-aar" + File.separator + "res");
 
             for(File f : newResourcesDir.listFiles())
             {
-                String outDir = getPathForFolderInModuleSrcMain(moduleName, "res") + File.separator + f.getName();
+                String outDir = getPathForFolderInModuleSrcMain(module, "res") + File.separator + f.getName();
                 recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
             ok();
@@ -358,13 +397,13 @@ public class Main
         }
     }
 
-    private void deleteOldResourcesForModule(String moduleName)
+    private void deleteOldResourcesForModule(Module module)
     {
-        stepMsg("Deleting resources for module '" + moduleName + "'");
+        stepMsg("Deleting resources for module '" + module.name + "'");
 
         try
         {
-            deleteAllThingsInFolder(new File(getPathForFolderInModuleSrcMain(moduleName, "res")));
+            deleteAllThingsInFolder(new File(getPathForFolderInModuleSrcMain(module, "res")));
             ok();
         }
         catch (Exception e)
@@ -373,13 +412,13 @@ public class Main
         }
     }
 
-    private void deleteOldSourceForModule(String moduleName)
+    private void deleteOldSourceForModule(Module module)
     {
-        stepMsg("Deleting Java code for module " + moduleName);
+        stepMsg("Deleting Java code for module " + module.name);
 
         try
         {
-            deleteAllThingsInFolder(new File(getPathForFolderInModuleSrcMain(moduleName, "java")));
+            deleteAllThingsInFolder(new File(getPathForFolderInModuleSrcMain(module, "java")));
             ok();
         }
         catch (Exception e)
@@ -388,17 +427,17 @@ public class Main
         }
     }
 
-    private void copySourceForModule(String moduleName)
+    private void copySourceForModule(Module module)
     {
-        stepMsg("Copying new Java code for module " + moduleName);
+        stepMsg("Copying new Java code for module " + module.name);
 
         try
         {
-            File newJavaSourceDir = new File(TEMP_FOLDER_PATH + File.separator + moduleName + "-sources");
+            File newJavaSourceDir = new File(TEMP_FOLDER_PATH + File.separator + module.name + "-sources");
 
             for(File f : newJavaSourceDir.listFiles())
             {
-                String outDir = getPathForFolderInModuleSrcMain(moduleName, "java") + File.separator + f.getName();
+                String outDir = getPathForFolderInModuleSrcMain(module, "java") + File.separator + f.getName();
                 recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
             ok();
@@ -414,9 +453,9 @@ public class Main
     {
         stepMsg("Running preliminary check on merge directory");
 
-        for(String s : moduleNames)
+        for(Module module : Module.values())
         {
-            if(!new File(mergeDir + File.separator + s).exists())
+            if(!new File(mergeDir + File.separator + module.name).exists())
             {
                 fail();
             }
@@ -434,9 +473,9 @@ public class Main
     {
         stepMsg("Running preliminary check on stock SDK");
 
-        for(String s : moduleNames)
+        for(Module module : Module.values())
         {
-            if(!(makeFileForModuleAar(s).exists() && makeFileForModuleSourcesJar(s).exists()))
+            if(!(makeFileForModuleAar(module).exists() && makeFileForModuleSourcesJar(module).exists()))
             {
                 fail();
             }
@@ -478,13 +517,13 @@ public class Main
         }
     }
 
-    private void extractAarToTempDir(String aarName)
+    private void extractAarToTempDir(Module module)
     {
-        stepMsg("Extracting '" + aarName + "' AAR to temporary merge directory");
+        stepMsg("Extracting '" + module.name + "' AAR to temporary merge directory");
 
         try
         {
-            new ZipFile(makeFileForModuleAar(aarName)).extractAll(TEMP_FOLDER_PATH + File.separator + aarName + "-aar");
+            new ZipFile(makeFileForModuleAar(module)).extractAll(TEMP_FOLDER_PATH + File.separator + module.name + "-aar");
             ok();
         }
         catch (Exception e)
@@ -494,13 +533,13 @@ public class Main
         }
     }
 
-    private void extractSourcesJarToTempDir(String jarName)
+    private void extractSourcesJarToTempDir(Module module)
     {
-        stepMsg("Extracting '" + jarName + "' sources JAR to temporary merge directory");
+        stepMsg("Extracting '" + module.name + "' sources JAR to temporary merge directory");
 
         try
         {
-            new ZipFile(makeFileForModuleSourcesJar(jarName)).extractAll(TEMP_FOLDER_PATH + File.separator + jarName + "-sources");
+            new ZipFile(makeFileForModuleSourcesJar(module)).extractAll(TEMP_FOLDER_PATH + File.separator + module.name + "-sources");
             ok();
         }
         catch (Exception e)
@@ -510,24 +549,57 @@ public class Main
         }
     }
 
-    private File makeFileForModuleSourcesJar(String moduleName)
+    private File makeFileForModuleSourcesJar(Module module)
     {
-        return new File(stockDir + File.separator + "libs" + File.separator + moduleName + "-release-sources.jar");
+        return new File(stockDir + File.separator + "libs" + File.separator + module.name + "-release-sources.jar");
     }
 
-    private File makeFileForModuleAar(String moduleName)
+    private File makeFileForModuleAar(Module module)
     {
-        return new File(stockDir + File.separator + "libs" + File.separator + moduleName + "-release.aar");
+        return new File(stockDir + File.separator + "libs" + File.separator + module.name + "-release.aar");
     }
     
-    private String getSrcMainPathForModule(String moduleName)
+    private String getSrcMainPathForModule(Module module)
     {
-        return mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main";
+        return mergeDir + File.separator + module.name + File.separator + "src" + File.separator + "main";
     }
 
-    private String getPathForFolderInModuleSrcMain(String moduleName, String folderName)
+    private String getPathForFolderInModuleSrcMain(Module module, String folderName)
     {
-        return getSrcMainPathForModule(moduleName) + File.separator + folderName;
+        return getSrcMainPathForModule(module) + File.separator + folderName;
+    }
+
+    private String getFolderPath(Location location, Module module, ModuleFolder folder)
+    {
+        switch (location)
+        {
+            case MERGE:
+            {
+                return mergeDir + File.separator + module.name + File.separator + folder.name;
+            }
+
+            case NEW:
+            {
+                if(folder.archive == Archive.SOURCE_JAR)
+                {
+                    return TEMP_FOLDER_PATH + File.separator + module.name + "-aar" + File.separator + folder.name;
+                }
+                else if(folder.archive == Archive.AAR)
+                {
+                    if(folder == ModuleFolder.JAVA_SOURCE)
+                    {
+                        return TEMP_FOLDER_PATH + File.separator + module.name + "-sources";
+                    }
+
+                    return null;
+                }
+            }
+
+            default:
+            {
+                return null;
+            }
+        }
     }
 
     private void fail()
