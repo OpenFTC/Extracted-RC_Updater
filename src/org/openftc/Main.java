@@ -28,8 +28,6 @@ import net.lingala.zip4j.core.ZipFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -39,24 +37,6 @@ public class Main
 {
     @Parameter(names = "-h", help = true, description = "Print help")
     private boolean help;
-
-    /*@Parameter(names = {"-i", "--input"}, description = "AAR/JAR input file", required = true)
-    private String inputFilepath;
-
-    @Parameter(names = {"-s", "--sources"}, description = "Sources JAR file (optional)", required = false)
-    private String sourcesFilepath;
-
-    @Parameter(names = {"-o", "--output"}, description = "ZIP Output file", required = true)
-    private String outputFilepath;
-
-    @Parameter(names = {"-g", "--group"}, description = "Group name", required = true)
-    private String groupName;
-
-    @Parameter(names = {"-a", "--artifact"}, description = "Artifact name", required = true)
-    private String artifactName;
-
-    @Parameter(names = {"-v", "--version"}, description = "Artifact version", required = true)
-    private String artifactVersion;*/
 
     @Parameter(names = {"-m", "--merge-dir"}, description = "SDK Directory", required = false)
     private String mergeDir;
@@ -74,6 +54,7 @@ public class Main
             "RobotServer"};
 
     private boolean waitingForFailOrOk = false;
+    private int lengthOfLastStepMsg = 0;
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
     private static final String MANIFEST_NAME = "AndroidManifest.xml";
 
@@ -122,13 +103,6 @@ public class Main
         ensureWeAreInExtractedRcRepo();
         checkThatStockSdkHasAars();
         prepareTempDir();
-        //extractAarsAndSourceJars();
-        //copyModuleSources();
-        //copyModuleResources();
-        //copyModuleAssets();
-        //copyModuleLibs();
-        //copyModuleManifests();
-        //copyModuleNativeLibs();
 
         for(String s : moduleNames)
         {
@@ -159,84 +133,6 @@ public class Main
         deleteOldNativeLibsForModule(s);
         copyNewNativeLibsForModule(s);
     }
-
-//    private void copyModuleSources()
-//    {
-//        for (String s : moduleNames)
-//        {
-//            deleteOldSourceForModule(s);
-//        }
-//
-//        for(String s : moduleNames)
-//        {
-//            copySourceForModule(s);
-//        }
-//    }
-//
-//    private void copyModuleResources()
-//    {
-//        for(String s : moduleNames)
-//        {
-//            deleteOldResourcesForModule(s);
-//        }
-//
-//        for(String s : moduleNames)
-//        {
-//            copyNewResourcesForModule(s);
-//        }
-//    }
-//
-//    private void copyModuleAssets()
-//    {
-//        for(String s : moduleNames)
-//        {
-//            deleteOldAssetsForModule(s);
-//        }
-//
-//        for(String s : moduleNames)
-//        {
-//            copyNewAssetsForModule(s);
-//        }
-//    }
-//
-//    private void copyModuleLibs()
-//    {
-//        for(String s : moduleNames)
-//        {
-//            deleteOldLibsForModule(s);
-//        }
-//
-//        for(String s : moduleNames)
-//        {
-//            copyNewLibsForModule(s);
-//        }
-//    }
-//
-//    private void copyModuleManifests()
-//    {
-//        for(String s : moduleNames)
-//        {
-//            deleteOldManifestForModule(s);
-//        }
-//
-//        for(String s : moduleNames)
-//        {
-//            copyNewManifestForModule(s);
-//        }
-//    }
-//
-//    private void copyModuleNativeLibs()
-//    {
-//        for(String s : moduleNames)
-//        {
-//            deleteOldNativeLibsForModule(s);
-//        }
-//
-//        for(String s : moduleNames)
-//        {
-//            copyNewNativeLibsForModule(s);
-//        }
-//    }
 
     private void copyNewManifestForModule(String moduleName)
     {
@@ -551,15 +447,6 @@ public class Main
         }
     }
 
-    private void extractAarsAndSourceJars()
-    {
-        for(String s : moduleNames)
-        {
-            extractAarToTempDir(s);
-            extractSourcesJarToTempDir(s);
-        }
-    }
-
     private void extractAarToTempDir(String aarName)
     {
         stepMsg("Extracting '" + aarName + "' AAR to temporary merge directory");
@@ -604,35 +491,44 @@ public class Main
 
     private void fail()
     {
-        if(waitingForFailOrOk)
+        String failMsg = "[FAIL]";
+
+        StringBuilder builder = new StringBuilder();
+
+        for(int i = lengthOfLastStepMsg; i < 80-failMsg.length(); i++)
         {
-            System.out.println("[FAIL]");
-            System.exit(1);
-            waitingForFailOrOk = false;
+            builder.append(" ");
         }
-        else
-        {
-            throw new RuntimeException();
-        }
+
+        System.out.print(builder.toString());
+
+        System.out.println(failMsg);
+
+        System.exit(1);
     }
 
     private void ok()
     {
-        if(waitingForFailOrOk)
+        String okMsg = "[OK]";
+
+        StringBuilder builder = new StringBuilder();
+
+        for(int i = lengthOfLastStepMsg; i < 80-okMsg.length(); i++)
         {
-            System.out.println("[OK]");
-            waitingForFailOrOk = false;
+            builder.append(" ");
         }
-        else
-        {
-            throw new RuntimeException();
-        }
+
+        System.out.print(builder.toString());
+
+        System.out.println(okMsg);
     }
 
     private void stepMsg(String msg)
     {
-        System.out.print("> " + msg + "... ");
+        msg = "> " + msg + "... ";
+        System.out.print(msg);
         waitingForFailOrOk = true;
+        lengthOfLastStepMsg = msg.length();
     }
 
     private void deleteAllThingsInFolder(File folder)
