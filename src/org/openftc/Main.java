@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
@@ -135,7 +134,8 @@ public class Main
         copyModuleAssets();
         copyModuleLibs();
         copyModuleManifests();
-        reformatModulesToLf();
+        copyModuleNativeLibs();
+        checklist();
     }
 
     private void copyModuleSources()
@@ -203,11 +203,16 @@ public class Main
         }
     }
 
-    private void reformatModulesToLf()
+    private void copyModuleNativeLibs()
     {
         for(String s : moduleNames)
         {
-            reformatModuleToLf(s);
+            deleteOldNativeLibsForModule(s);
+        }
+
+        for(String s : moduleNames)
+        {
+            copyNewNativeLibsForModule(s);
         }
     }
 
@@ -238,6 +243,52 @@ public class Main
         try
         {
             manifestFile.delete();
+            ok();
+        }
+        catch (Exception e)
+        {
+            fail();
+        }
+    }
+
+    private void copyNewNativeLibsForModule(String moduleName)
+    {
+        File newJniLibsDir = new File(mergeDir + File.separator + TEMP_FOLDER_NAME + File.separator + moduleName + "-aar" + File.separator + "jni");
+
+        if(!newJniLibsDir.exists())
+        {
+            return;
+        }
+
+        stepMsg("Copying new native libs for module '" + moduleName + "'");
+
+        try
+        {
+            String outDir = mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + "jniLibs";
+            recursiveCopyDir(newJniLibsDir.getAbsolutePath(), outDir);
+            ok();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            fail();
+        }
+    }
+
+    private void deleteOldNativeLibsForModule(String moduleName)
+    {
+        File jniLibsFolder = new File(mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main" + File.separator + "jniLibs");
+
+        if(!jniLibsFolder.exists())
+        {
+            return;
+        }
+
+        stepMsg("Deleting native libs for module '" + moduleName + "'");
+
+        try
+        {
+            deleteFolder(jniLibsFolder);
             ok();
         }
         catch (Exception e)
@@ -412,21 +463,6 @@ public class Main
         }
     }
 
-    private void reformatModuleToLf(String moduleName)
-    {
-        stepMsg("Reformatting module '" + moduleName + "' to LF line endings");
-
-        try
-        {
-            recursiveReformatToLf(mergeDir + File.separator + moduleName + File.separator + "src" + File.separator + "main", extsToReformatToLf);
-            ok();
-        }
-        catch (Exception e)
-        {
-            fail();
-        }
-    }
-
     private void ensureWeAreInExtractedRcRepo()
     {
         stepMsg("Running preliminary check on merge directory");
@@ -470,7 +506,10 @@ public class Main
 
         try
         {
-            deleteFolder(tempDir);
+            if(tempDir.exists())
+            {
+                deleteFolder(tempDir);
+            }
             ok();
         }
         catch (Exception e)
@@ -623,33 +662,16 @@ public class Main
         }
     }
 
-    private void recursiveReformatToLf(String dir, String[] extsToReformatToLf) throws IOException
+    private void checklist()
     {
-        for(File f : new File(dir).listFiles())
-        {
-            if(f.isDirectory())
-            {
-                recursiveReformatToLf(f.getAbsolutePath(), extsToReformatToLf);
-            }
-            else
-            {
-                for(String ext : extsToReformatToLf)
-                {
-                    if(f.getName().endsWith(ext))
-                    {
-                        reformatToLf(f);
-                        break;
-                    }
-                }
-            }
-        }
-    }
+        System.out.println();
+        System.out.println("=======================================================");
+        System.out.println("= Checklist of stuff to do after this script finishes =");
+        System.out.println("=======================================================");
+        System.out.println();
 
-    private void reformatToLf(File f) throws IOException
-    {
-        Charset charset = StandardCharsets.UTF_8;
-        String fileContent = new String(Files.readAllBytes(Paths.get(f.getAbsolutePath())), charset);
-        fileContent = fileContent.replaceAll("\r\n", "\n");
-        Files.write(Paths.get(f.getAbsolutePath()), fileContent.getBytes(charset));
+        System.out.println("1. Remove the version code and name for each library from its manifest");
+        System.out.println("2. Update the version code and name for each library in its build.gradle file");
+        System.out.println("3. Use AS to reformat all text files to LF line endings (select root project folder, File -> Line Endings -> LF)");
     }
 }
