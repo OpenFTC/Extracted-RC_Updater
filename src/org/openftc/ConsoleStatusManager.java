@@ -14,6 +14,19 @@ public class ConsoleStatusManager
         System.exit(1);
     }
 
+    void fail(Exception e)
+    {
+        String failMsg = "[FAIL]";
+
+        System.out.println(rightAlignResult(failMsg));
+
+        System.out.println("Stacktrace:");
+
+        e.printStackTrace();
+
+        System.exit(1);
+    }
+
     void ok()
     {
         String okMsg = "[OK]";

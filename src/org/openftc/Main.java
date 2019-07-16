@@ -217,7 +217,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -234,7 +234,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -257,8 +257,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -280,7 +279,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -303,8 +302,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -326,7 +324,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -349,8 +347,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -372,7 +369,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -393,8 +390,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -409,7 +405,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -424,7 +420,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -445,8 +441,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -503,7 +498,7 @@ public class Main
         }
         catch (Exception e)
         {
-            csm.fail();
+            csm.fail(e);
         }
 
         csm.stepMsg("Creating temporary folder in merge directory");
@@ -529,8 +524,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
@@ -545,8 +539,7 @@ public class Main
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            csm.fail();
+            csm.fail(e);
         }
     }
 
