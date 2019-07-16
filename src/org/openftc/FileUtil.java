@@ -32,37 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 class FileUtil
 {
-    static void dumpRawAsciiToDisk(String ascii, File out) throws IOException
-    {
-        FileOutputStream fileOutputStream = new FileOutputStream(out.getAbsolutePath());
-        fileOutputStream.write(ascii.getBytes(Charset.forName("ASCII")));
-        fileOutputStream.flush();
-        fileOutputStream.close();
-    }
-
-    static void zipDir(String dirPath) throws IOException
-    {
-        Path sourceDir = Paths.get(dirPath);
-        String zipFileName = dirPath.concat(".zip");
-
-        ZipOutputStream outputStream = new ZipOutputStream(new FileOutputStream(zipFileName));
-        Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>()
-        {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) throws IOException
-            {
-                Path targetFile = sourceDir.relativize(file);
-                outputStream.putNextEntry(new ZipEntry(targetFile.toString()));
-                byte[] bytes = Files.readAllBytes(file);
-                outputStream.write(bytes, 0, bytes.length);
-                outputStream.closeEntry();
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        outputStream.close();
-    }
-
-    static void deleteFolder(File folder)
+    static void deleteAllThingsInFolder(File folder)
     {
         File[] files = folder.listFiles();
 
@@ -76,11 +46,38 @@ class FileUtil
                 }
                 else
                 {
-                    f.delete();
+                    if(!f.delete())
+                    {
+                        throw new RuntimeException();
+                    }
                 }
             }
         }
+    }
 
-        folder.delete();
+    static void deleteFolder(File folder)
+    {
+        deleteAllThingsInFolder(folder);
+
+        if(!folder.delete())
+        {
+            throw new RuntimeException();
+        }
+    }
+
+    static void recursiveCopyDir(String in, String out) throws IOException
+    {
+        for(File f : new File(in).listFiles())
+        {
+            if(f.isDirectory())
+            {
+                recursiveCopyDir(f.getAbsolutePath(), out + File.separator + f.getName());
+            }
+            else
+            {
+                new File(out + File.separator + f.getName()).getParentFile().mkdirs();
+                Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(out + File.separator + f.getName()), StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
     }
 }

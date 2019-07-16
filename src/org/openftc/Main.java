@@ -76,6 +76,7 @@ public class Main
 
     enum ModuleItem
     {
+        ROOT_DIR(null, null, null),
         JAVA_SOURCE (Archive.SOURCE_JAR, "java",                "java"  ),
         ASSETS      (Archive.AAR,        "assets",              "assets"),
         LIBS        (Archive.AAR,        "libs",                "libs"  ),
@@ -94,10 +95,9 @@ public class Main
             this.archiveName = archiveName;
         }
     }
-
-    private int lengthOfLastStepMsg = 0;
+    
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
-
+    private ConsoleStatusManager csm = new ConsoleStatusManager();
     private String TEMP_FOLDER_PATH;
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException
@@ -205,7 +205,7 @@ public class Main
 
     private void copyNewManifestForModule(Module module)
     {
-        stepMsg("Copying new manifest file for module '" + module.name + "'");
+        csm.stepMsg("Copying new manifest file for module '" + module.name + "'");
 
         String newManifestFilePath = getItemPath(Location.NEW, module, ModuleItem.MANIFEST);
         String destPath = getItemPath(Location.EXISTING, module, ModuleItem.MANIFEST);
@@ -213,28 +213,28 @@ public class Main
         try
         {
             Files.copy(Paths.get(newManifestFilePath), Paths.get(destPath));
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
     private void deleteOldManifestForModule(Module module)
     {
-        stepMsg("Deleting manifest for module '" + module.name + "'");
+        csm.stepMsg("Deleting manifest for module '" + module.name + "'");
 
         File manifestFile = getFileForItem(Location.EXISTING, module, ModuleItem.MANIFEST);
 
         try
         {
             manifestFile.delete();
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
@@ -247,18 +247,18 @@ public class Main
             return;
         }
 
-        stepMsg("Copying new native libs for module '" + module.name + "'");
+        csm.stepMsg("Copying new native libs for module '" + module.name + "'");
 
         try
         {
             String outDir = getItemPath(Location.EXISTING, module, ModuleItem.NATIVE_LIBS);
-            recursiveCopyDir(newJniLibsDir.getAbsolutePath(), outDir);
-            ok();
+            FileUtil.recursiveCopyDir(newJniLibsDir.getAbsolutePath(), outDir);
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
@@ -271,16 +271,16 @@ public class Main
             return;
         }
 
-        stepMsg("Deleting native libs for module '" + module.name + "'");
+        csm.stepMsg("Deleting native libs for module '" + module.name + "'");
 
         try
         {
-            deleteFolder(jniLibsFolder);
-            ok();
+            FileUtil.deleteFolder(jniLibsFolder);
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
@@ -293,18 +293,18 @@ public class Main
             return;
         }
 
-        stepMsg("Copying new libs for module '" + module.name + "'");
+        csm.stepMsg("Copying new libs for module '" + module.name + "'");
 
         try
         {
             String outDir = getItemPath(Location.EXISTING, module, ModuleItem.LIBS);
-            recursiveCopyDir(newLibsDir.getAbsolutePath(), outDir);
-            ok();
+            FileUtil.recursiveCopyDir(newLibsDir.getAbsolutePath(), outDir);
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
@@ -317,16 +317,16 @@ public class Main
             return;
         }
 
-        stepMsg("Deleting libs for module '" + module.name + "'");
+        csm.stepMsg("Deleting libs for module '" + module.name + "'");
 
         try
         {
-            deleteAllThingsInFolder(libsFolder);
-            ok();
+            FileUtil.deleteAllThingsInFolder(libsFolder);
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
@@ -339,18 +339,18 @@ public class Main
             return;
         }
 
-        stepMsg("Copying new assets for module '" + module.name + "'");
+        csm.stepMsg("Copying new assets for module '" + module.name + "'");
 
         try
         {
             String outDir = getItemPath(Location.EXISTING, module, ModuleItem.ASSETS);
-            recursiveCopyDir(newAsssetsDir.getAbsolutePath(), outDir);
-            ok();
+            FileUtil.recursiveCopyDir(newAsssetsDir.getAbsolutePath(), outDir);
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
@@ -363,22 +363,22 @@ public class Main
             return;
         }
 
-        stepMsg("Deleting assets for module '" + module.name + "'");
+        csm.stepMsg("Deleting assets for module '" + module.name + "'");
 
         try
         {
-            deleteAllThingsInFolder(assetsFolder);
-            ok();
+            FileUtil.deleteAllThingsInFolder(assetsFolder);
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
     private void copyNewResourcesForModule(Module module)
     {
-        stepMsg("Copying new resources for module '" + module.name + "'");
+        csm.stepMsg("Copying new resources for module '" + module.name + "'");
 
         try
         {
@@ -387,50 +387,50 @@ public class Main
             for(File f : newResourcesDir.listFiles())
             {
                 String outDir = getItemPath(Location.EXISTING, module, ModuleItem.RESOURCES) + File.separator + f.getName();
-                recursiveCopyDir(f.getAbsolutePath(), outDir);
+                FileUtil.recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
     private void deleteOldResourcesForModule(Module module)
     {
-        stepMsg("Deleting resources for module '" + module.name + "'");
+        csm.stepMsg("Deleting resources for module '" + module.name + "'");
 
         try
         {
-            deleteAllThingsInFolder(getFileForItem(Location.EXISTING, module, ModuleItem.RESOURCES));
-            ok();
+            FileUtil.deleteAllThingsInFolder(getFileForItem(Location.EXISTING, module, ModuleItem.RESOURCES));
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
     private void deleteOldSourceForModule(Module module)
     {
-        stepMsg("Deleting Java code for module " + module.name);
+        csm.stepMsg("Deleting Java code for module " + module.name);
 
         try
         {
-            deleteAllThingsInFolder(getFileForItem(Location.EXISTING, module, ModuleItem.JAVA_SOURCE));
-            ok();
+            FileUtil.deleteAllThingsInFolder(getFileForItem(Location.EXISTING, module, ModuleItem.JAVA_SOURCE));
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
     }
 
     private void copySourceForModule(Module module)
     {
-        stepMsg("Copying new Java code for module " + module.name);
+        csm.stepMsg("Copying new Java code for module " + module.name);
 
         try
         {
@@ -439,50 +439,50 @@ public class Main
             for(File f : newJavaSourceDir.listFiles())
             {
                 String outDir = getItemPath(Location.NEW, module, ModuleItem.JAVA_SOURCE) + File.separator + f.getName();
-                recursiveCopyDir(f.getAbsolutePath(), outDir);
+                FileUtil.recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
     private void ensureWeAreInExtractedRcRepo()
     {
-        stepMsg("Running preliminary check on merge directory");
+        csm.stepMsg("Running preliminary check on merge directory");
 
         for(Module module : Module.values())
         {
-            if(!new File(mergeDir + File.separator + module.name).exists())
+            if(!getFileForItem(Location.EXISTING, module, ModuleItem.ROOT_DIR).exists())
             {
-                fail();
+                csm.fail();
             }
         }
 
         if(!new File(mergeDir + File.separator + "FtcRobotController").exists())
         {
-            fail();
+            csm.fail();
         }
 
-        ok();
+        csm.ok();
     }
 
     private void checkThatStockSdkHasAars()
     {
-        stepMsg("Running preliminary check on stock SDK");
+        csm.stepMsg("Running preliminary check on stock SDK");
 
         for(Module module : Module.values())
         {
             if(!(makeFileForModuleAar(module).exists() && makeFileForModuleSourcesJar(module).exists()))
             {
-                fail();
+                csm.fail();
             }
         }
 
-        ok();
+        csm.ok();
     }
 
     private void prepareTempDir()
@@ -491,62 +491,62 @@ public class Main
 
         File tempDir = new File(TEMP_FOLDER_PATH);
 
-        stepMsg("Deleting temporary folder in merge directory if it exists");
+        csm.stepMsg("Deleting temporary folder in merge directory if it exists");
 
         try
         {
             if(tempDir.exists())
             {
-                deleteFolder(tempDir);
+                FileUtil.deleteFolder(tempDir);
             }
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
-            fail();
+            csm.fail();
         }
 
-        stepMsg("Creating temporary folder in merge directory");
+        csm.stepMsg("Creating temporary folder in merge directory");
 
         if(tempDir.mkdir())
         {
-            ok();
+            csm.ok();
         }
         else
         {
-            fail();
+            csm.fail();
         }
     }
 
     private void extractAarToTempDir(Module module)
     {
-        stepMsg("Extracting '" + module.name + "' AAR to temporary merge directory");
+        csm.stepMsg("Extracting '" + module.name + "' AAR to temporary merge directory");
 
         try
         {
             new ZipFile(makeFileForModuleAar(module)).extractAll(TEMP_FOLDER_PATH + File.separator + module.name + "-aar");
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
     private void extractSourcesJarToTempDir(Module module)
     {
-        stepMsg("Extracting '" + module.name + "' sources JAR to temporary merge directory");
+        csm.stepMsg("Extracting '" + module.name + "' sources JAR to temporary merge directory");
 
         try
         {
             new ZipFile(makeFileForModuleSourcesJar(module)).extractAll(TEMP_FOLDER_PATH + File.separator + module.name + "-sources");
-            ok();
+            csm.ok();
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            fail();
+            csm.fail();
         }
     }
 
@@ -613,9 +613,13 @@ public class Main
              */
             case EXISTING:
             {
-                if(item == ModuleItem.LIBS)
+                if(item == ModuleItem.ROOT_DIR)
                 {
-                    return mergeDir + File.separator + item.stdName;
+                    return mergeDir + File.separator + module.name;
+                }
+                else if(item == ModuleItem.LIBS)
+                {
+                    return mergeDir + File.separator + module.name + File.separator + item.stdName;
                 }
                 else if(item == ModuleItem.MANIFEST)
                 {
@@ -632,6 +636,10 @@ public class Main
              */
             case NEW:
             {
+                if(item == ModuleItem.ROOT_DIR)
+                {
+                    throw new RuntimeException();
+                }
                 if(item.archiveType == Archive.SOURCE_JAR)
                 {
                     if(item == ModuleItem.JAVA_SOURCE)
@@ -650,96 +658,6 @@ public class Main
             default:
             {
                 throw new RuntimeException();
-            }
-        }
-    }
-
-    private void fail()
-    {
-        String failMsg = "[FAIL]";
-
-        StringBuilder builder = new StringBuilder();
-
-        for(int i = lengthOfLastStepMsg; i < 80-failMsg.length(); i++)
-        {
-            builder.append(" ");
-        }
-
-        System.out.print(builder.toString());
-
-        System.out.println(failMsg);
-
-        System.exit(1);
-    }
-
-    private void ok()
-    {
-        String okMsg = "[OK]";
-
-        StringBuilder builder = new StringBuilder();
-
-        for(int i = lengthOfLastStepMsg; i < 80-okMsg.length(); i++)
-        {
-            builder.append(" ");
-        }
-
-        System.out.print(builder.toString());
-
-        System.out.println(okMsg);
-    }
-
-    private void stepMsg(String msg)
-    {
-        msg = "> " + msg + "... ";
-        System.out.print(msg);
-        lengthOfLastStepMsg = msg.length();
-    }
-
-    private void deleteAllThingsInFolder(File folder)
-    {
-        File[] files = folder.listFiles();
-
-        if (files != null)
-        {
-            for (File f : files)
-            {
-                if (f.isDirectory())
-                {
-                    deleteFolder(f);
-                }
-                else
-                {
-                    if(!f.delete())
-                    {
-                        throw new RuntimeException();
-                    }
-                }
-            }
-        }
-    }
-
-    private void deleteFolder(File folder)
-    {
-        deleteAllThingsInFolder(folder);
-
-        if(!folder.delete())
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    private void recursiveCopyDir(String in, String out) throws IOException
-    {
-        for(File f : new File(in).listFiles())
-        {
-            if(f.isDirectory())
-            {
-                recursiveCopyDir(f.getAbsolutePath(), out + File.separator + f.getName());
-            }
-            else
-            {
-                new File(out + File.separator + f.getName()).getParentFile().mkdirs();
-                Files.copy(Paths.get(f.getAbsolutePath()), Paths.get(out + File.separator + f.getName()), StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
