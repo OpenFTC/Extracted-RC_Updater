@@ -40,7 +40,7 @@ public class ConsoleStatusManager
 
         for(int i = lengthOfLastStepMsg; i < STD_TERMINAL_COLUMNS-result.length(); i++)
         {
-            builder.append(" ");
+            builder.append(".");
         }
 
         builder.append(result);
@@ -50,7 +50,7 @@ public class ConsoleStatusManager
 
     void stepMsg(String msg)
     {
-        msg = "> " + msg + "... ";
+        msg = "> " + msg + "...";
         System.out.print(msg);
         lengthOfLastStepMsg = msg.length();
     }
