@@ -7,18 +7,16 @@ public class ConsoleStatusManager
 
     void fail()
     {
-        String failMsg = "[FAIL]";
-
-        System.out.println(rightAlignResult(failMsg));
+        System.out.println(rightAlignResult("[FAIL]"));
 
         System.exit(1);
     }
 
     void fail(Exception e)
     {
-        String failMsg = "[FAIL]";
-
-        System.out.println(rightAlignResult(failMsg));
+        System.out.print((char)27 + "[31m"); //red
+        System.out.println(rightAlignResult("[FAIL]"));
+        System.out.print((char)27 + "[0m"); //end red
 
         System.out.println("Stacktrace:");
 
@@ -29,9 +27,16 @@ public class ConsoleStatusManager
 
     void ok()
     {
-        String okMsg = "[OK]";
+        System.out.print((char)27 + "[32m"); //green
+        System.out.println(rightAlignResult("[OK]"));
+        System.out.print((char)27 + "[0m"); //end green
+    }
 
-        System.out.println(rightAlignResult(okMsg));
+    void na()
+    {
+        System.out.print((char)27 + "[33m"); //yellow
+        System.out.println(rightAlignResult("[N/A]"));
+        System.out.print((char)27 + "[0m"); //end yellow
     }
 
     String rightAlignResult(String result)
@@ -40,7 +45,7 @@ public class ConsoleStatusManager
 
         for(int i = lengthOfLastStepMsg; i < STD_TERMINAL_COLUMNS-result.length(); i++)
         {
-            builder.append(".");
+            builder.append(" ");
         }
 
         builder.append(result);

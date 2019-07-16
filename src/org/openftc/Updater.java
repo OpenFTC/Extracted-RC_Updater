@@ -174,14 +174,15 @@ public class Updater
 
     private void copyNewNativeLibsForModule(Module module)
     {
+        csm.stepMsg("Copying new native libs for module '" + module.name + "'");
+
         File newJniLibsDir = getFileForItem(Location.NEW, module, ModuleItem.NATIVE_LIBS);
 
         if(!newJniLibsDir.exists())
         {
+            csm.na();
             return;
         }
-
-        csm.stepMsg("Copying new native libs for module '" + module.name + "'");
 
         try
         {
@@ -197,14 +198,15 @@ public class Updater
 
     private void deleteOldNativeLibsForModule(Module module)
     {
+        csm.stepMsg("Deleting native libs for module '" + module.name + "'");
+
         File jniLibsFolder = getFileForItem(Location.EXISTING, module, ModuleItem.NATIVE_LIBS);
 
         if(!jniLibsFolder.exists())
         {
+            csm.na();
             return;
         }
-
-        csm.stepMsg("Deleting native libs for module '" + module.name + "'");
 
         try
         {
@@ -219,14 +221,15 @@ public class Updater
 
     private void copyNewLibsForModule(Module module)
     {
+        csm.stepMsg("Copying new libs for module '" + module.name + "'");
+
         File newLibsDir = getFileForItem(Location.NEW, module, ModuleItem.LIBS);
 
         if(!newLibsDir.exists())
         {
+            csm.na();
             return;
         }
-
-        csm.stepMsg("Copying new libs for module '" + module.name + "'");
 
         try
         {
@@ -242,14 +245,15 @@ public class Updater
 
     private void deleteOldLibsForModule(Module module)
     {
+        csm.stepMsg("Deleting libs for module '" + module.name + "'");
+
         File libsFolder = getFileForItem(Location.EXISTING, module, ModuleItem.LIBS);
 
         if(!libsFolder.exists())
         {
+            csm.na();
             return;
         }
-
-        csm.stepMsg("Deleting libs for module '" + module.name + "'");
 
         try
         {
@@ -264,14 +268,15 @@ public class Updater
 
     private void copyNewAssetsForModule(Module module)
     {
+        csm.stepMsg("Copying new assets for module '" + module.name + "'");
+
         File newAsssetsDir = getFileForItem(Location.NEW, module, ModuleItem.ASSETS);
 
         if(!newAsssetsDir.exists())
         {
+            csm.na();
             return;
         }
-
-        csm.stepMsg("Copying new assets for module '" + module.name + "'");
 
         try
         {
@@ -287,14 +292,15 @@ public class Updater
 
     private void deleteOldAssetsForModule(Module module)
     {
+        csm.stepMsg("Deleting assets for module '" + module.name + "'");
+
         File assetsFolder = getFileForItem(Location.EXISTING, module, ModuleItem.ASSETS);
 
         if(!assetsFolder.exists())
         {
+            csm.na();
             return;
         }
-
-        csm.stepMsg("Deleting assets for module '" + module.name + "'");
 
         try
         {
