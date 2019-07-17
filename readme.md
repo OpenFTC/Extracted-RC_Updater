@@ -1,22 +1,14 @@
-This tool repacks AAR files into a ZIP with the proper folder structure and metadata files for uploading to Bintray without modifying them in any way.
+This tool is intended to be used by the primary maintainer of ExtractedRC ONLY. It is used to update merge the changes from the stock SDK into ExtractedRC.
 
-You can download a prebuilt version from the [releases page](https://github.com/OpenFTC/AAR_Repackager/releases).
+You can download a prebuilt version from the [releases page](https://github.com/OpenFTC/ExtractedRC_Updater/releases).
 
 ```
-Usage: java -jar AAR_Repackager.jar [options]
+Usage: java -jar ExtractedRC_Updater.jar [options]
   Options:
-  * -a, --artifact
-      Artifact name
-  * -g, --group
-      Group name
-  * -i, --input
-      AAR input file
-  * -o, --output
-      ZIP Output file
-    -s, --sources
-      Sources JAR file (optional)
-  * -v, --version
-      Artifact version
+    -m, --existing-merge-dir
+      The directory of the existing ExtractedRC project to merge into
+  * -s, --new-stock-dir
+      The directory of the new stock SDK to use for the merge
     -h
       Print help
 

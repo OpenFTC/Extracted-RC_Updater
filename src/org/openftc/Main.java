@@ -24,13 +24,8 @@ package org.openftc;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import net.lingala.zip4j.core.ZipFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 
 public class Main
@@ -38,11 +33,11 @@ public class Main
     @Parameter(names = "-h", help = true, description = "Print help")
     private boolean help;
 
-    @Parameter(names = {"-m", "--merge-dir"}, description = "SDK Directory", required = false)
-    private String mergeDir;
+    @Parameter(names = {"-m", "--existing-merge-dir"}, description = "The directory of the existing ExtractedRC project to merge into", required = false)
+    private String existingMergeDir;
 
-    @Parameter(names = {"-s", "--stock-dir"}, description = "SDK Directory", required = true)
-    private String stockDir;
+    @Parameter(names = {"-s", "--new-stock-dir"}, description = "The directory of the new stock SDK to use for the merge", required = true)
+    private String newStockDir;
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException
     {
@@ -62,7 +57,6 @@ public class Main
 
             if (instance.help)
             {
-                System.out.println("ExtractedRC Updater v1.0");
                 jCommander.usage();
             }
             else
@@ -74,7 +68,7 @@ public class Main
                 System.out.println("Please ensure that you have closed the project in Android Studio");
                 pause();
 
-                new Updater(instance.mergeDir, instance.stockDir).run();
+                new Updater(instance.existingMergeDir, instance.newStockDir).run();
             }
         }
         catch (ParameterException e)

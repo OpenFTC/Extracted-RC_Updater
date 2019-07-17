@@ -24,10 +24,8 @@ package org.openftc;
 import net.lingala.zip4j.core.ZipFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 
 public class Updater
@@ -40,14 +38,14 @@ public class Updater
 
     enum Module
     {
-        ROBOTCORE         ("RobotCore", true),
-        FTCCOMMON         ("FtcCommon", true),
-        FTCROBOTCONTROLLER("FtcRobotController", false),
-        HARDWARE          ("Hardware", true),
-        INSPECTION        ("Inspection", true),
-        ONBOTJAVA         ("OnBotJava", true),
-        BLOCKS            ("Blocks", true),
-        ROBOTSERVER       ("RobotServer", true);
+        ROBOTCORE          ("RobotCore",          true ),
+        FTCCOMMON          ("FtcCommon",          true ),
+        FTCROBOTCONTROLLER ("FtcRobotController", false),
+        HARDWARE           ("Hardware",           true ),
+        INSPECTION         ("Inspection",         true ),
+        ONBOTJAVA          ("OnBotJava",          true ),
+        BLOCKS             ("Blocks",             true ),
+        ROBOTSERVER        ("RobotServer",        true );
 
         String name;
         boolean isPackagedInArchive;
@@ -90,14 +88,14 @@ public class Updater
     private static final String TEMP_FOLDER_NAME = "tempMergeFolder";
     private ConsoleStatusManager csm = new ConsoleStatusManager();
     private String TEMP_FOLDER_PATH;
-    private String mergeDir;
-    private String stockDir;
+    private String existingMergeDir;
+    private String newStockDir;
     private long startTime;
 
-    public Updater(String mergeDir, String stockDir)
+    public Updater(String existingMergeDir, String newStockDir)
     {
-        this.mergeDir = mergeDir;
-        this.stockDir = stockDir;
+        this.existingMergeDir = existingMergeDir;
+        this.newStockDir = newStockDir;
     }
 
     void run()
@@ -428,7 +426,7 @@ public class Updater
             }
         }
 
-        if(!new File(mergeDir + File.separator + "FtcRobotController").exists())
+        if(!new File(existingMergeDir + File.separator + "FtcRobotController").exists())
         {
             csm.fail();
         }
@@ -458,7 +456,7 @@ public class Updater
 
     private void prepareTempDir()
     {
-        TEMP_FOLDER_PATH = mergeDir + File.separator + TEMP_FOLDER_NAME;
+        TEMP_FOLDER_PATH = existingMergeDir + File.separator + TEMP_FOLDER_NAME;
 
         File tempDir = new File(TEMP_FOLDER_PATH);
 
@@ -535,17 +533,17 @@ public class Updater
 
     private File makeFileForModuleSourcesJar(Module module)
     {
-        return new File(stockDir + File.separator + "libs" + File.separator + module.name + "-release-sources.jar");
+        return new File(newStockDir + File.separator + "libs" + File.separator + module.name + "-release-sources.jar");
     }
 
     private File makeFileForModuleAar(Module module)
     {
-        return new File(stockDir + File.separator + "libs" + File.separator + module.name + "-release.aar");
+        return new File(newStockDir + File.separator + "libs" + File.separator + module.name + "-release.aar");
     }
 
     private String getSrcMainPathForModule(Module module)
     {
-        return mergeDir + File.separator + module.name + File.separator + "src" + File.separator + "main";
+        return existingMergeDir + File.separator + module.name + File.separator + "src" + File.separator + "main";
     }
 
     private String getPathForFolderInModuleSrcMain(Module module, String folderName)
@@ -598,11 +596,11 @@ public class Updater
             {
                 if(item == ModuleItem.ROOT_DIR)
                 {
-                    return mergeDir + File.separator + module.name;
+                    return existingMergeDir + File.separator + module.name;
                 }
                 else if(item == ModuleItem.LIBS)
                 {
-                    return mergeDir + File.separator + module.name + File.separator + item.stdName;
+                    return existingMergeDir + File.separator + module.name + File.separator + item.stdName;
                 }
                 else if(item == ModuleItem.MANIFEST)
                 {
@@ -623,20 +621,20 @@ public class Updater
                 {
                     if(item == ModuleItem.ROOT_DIR)
                     {
-                        return stockDir + File.separator + module.name;
+                        return newStockDir + File.separator + module.name;
                     }
                     else if(item == ModuleItem.LIBS)
                     {
-                        return stockDir + File.separator + module.name + File.separator + item.stdName;
+                        return newStockDir + File.separator + module.name + File.separator + item.stdName;
                     }
                     else if(item == ModuleItem.MANIFEST)
                     {
-                        return stockDir + File.separator + module.name + File.separator + "src" + File.separator + "main" + File.separator + item.stdName;
+                        return newStockDir + File.separator + module.name + File.separator + "src" + File.separator + "main" + File.separator + item.stdName;
                         //return getSrcMainPathForModule(module) + File.separator + item.stdName;
                     }
                     else
                     {
-                        return stockDir + File.separator + module.name + File.separator + "src" + File.separator + "main" + File.separator + item.stdName;
+                        return newStockDir + File.separator + module.name + File.separator + "src" + File.separator + "main" + File.separator + item.stdName;
                         //return getPathForFolderInModuleSrcMain(module, item.stdName);
                     }
                 }
