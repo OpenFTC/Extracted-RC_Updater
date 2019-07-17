@@ -33,7 +33,7 @@ public class Main
     @Parameter(names = "-h", help = true, description = "Print help")
     private boolean help;
 
-    @Parameter(names = {"-m", "--existing-merge-dir"}, description = "The directory of the existing ExtractedRC project to merge into", required = false)
+    @Parameter(names = {"-m", "--existing-merge-dir"}, description = "The directory of the existing ExtractedRC project to merge into", required = true)
     private String existingMergeDir;
 
     @Parameter(names = {"-s", "--new-stock-dir"}, description = "The directory of the new stock SDK to use for the merge", required = true)

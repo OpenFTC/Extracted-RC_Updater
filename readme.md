@@ -5,7 +5,7 @@ You can download a prebuilt version from the [releases page](https://github.com/
 ```
 Usage: java -jar ExtractedRC_Updater.jar [options]
   Options:
-    -m, --existing-merge-dir
+  * -m, --existing-merge-dir
       The directory of the existing ExtractedRC project to merge into
   * -s, --new-stock-dir
       The directory of the new stock SDK to use for the merge
