@@ -1,4 +1,4 @@
-This tool is intended to be used by the primary maintainer of ExtractedRC ONLY. It is used to update merge the changes from the stock SDK into ExtractedRC.
+This tool is intended to be used by the primary maintainer of ExtractedRC ONLY. It is used to update ExtractedRC from the stock SDK.
 
 You can download a prebuilt version from the [releases page](https://github.com/OpenFTC/ExtractedRC_Updater/releases).
 
