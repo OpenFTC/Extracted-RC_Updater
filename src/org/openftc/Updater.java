@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 
 public class Updater
 {
@@ -39,19 +40,22 @@ public class Updater
 
     enum Module
     {
-        ROBOTCORE  ("RobotCore"),
-        FTCCOMMON  ("FtcCommon"),
-        HARDWARE   ("Hardware"),
-        INSPECTION ("Inspection"),
-        ONBOTJAVA  ("OnBotJava"),
-        BLOCKS     ("Blocks"),
-        ROBOTSERVER("RobotServer");
+        ROBOTCORE         ("RobotCore", true),
+        FTCCOMMON         ("FtcCommon", true),
+        FTCROBOTCONTROLLER("FtcRobotController", false),
+        HARDWARE          ("Hardware", true),
+        INSPECTION        ("Inspection", true),
+        ONBOTJAVA         ("OnBotJava", true),
+        BLOCKS            ("Blocks", true),
+        ROBOTSERVER       ("RobotServer", true);
 
         String name;
+        boolean isPackagedInArchive;
 
-        Module(String name)
+        Module(String name, boolean isPackagedInArchive)
         {
             this.name = name;
+            this.isPackagedInArchive = isPackagedInArchive;
         }
     }
 
@@ -88,6 +92,7 @@ public class Updater
     private String TEMP_FOLDER_PATH;
     private String mergeDir;
     private String stockDir;
+    private long startTime;
 
     public Updater(String mergeDir, String stockDir)
     {
@@ -97,6 +102,7 @@ public class Updater
 
     void run()
     {
+        startTime = System.currentTimeMillis();
         ensureWeAreInExtractedRcRepo();
         checkThatStockSdkHasAars();
         prepareTempDir();
@@ -111,9 +117,13 @@ public class Updater
 
     private void processModule(Module module)
     {
+        System.out.print((char)27 + "[47m");
+        System.out.print((char)27 + "[34m");
+        System.out.println();
         System.out.println("===============================================================");
         System.out.println("= Processing module: " + "'" + module.name + "'");
         System.out.println("===============================================================");
+        System.out.print((char)27 + "[0m");
 
         /*
          * Extract the archives
@@ -432,6 +442,11 @@ public class Updater
 
         for(Module module : Module.values())
         {
+            if(!module.isPackagedInArchive)
+            {
+                continue;
+            }
+
             if(!(makeFileForModuleAar(module).exists() && makeFileForModuleSourcesJar(module).exists()))
             {
                 csm.fail();
@@ -476,7 +491,13 @@ public class Updater
 
     private void extractAarToTempDir(Module module)
     {
-        csm.stepMsg("Extracting '" + module.name + "' AAR to temporary merge directory");
+        csm.stepMsg("Extracting '" + module.name + "' AAR to temporary directory");
+
+        if(!module.isPackagedInArchive)
+        {
+            csm.na();
+            return;
+        }
 
         try
         {
@@ -491,7 +512,13 @@ public class Updater
 
     private void extractSourcesJarToTempDir(Module module)
     {
-        csm.stepMsg("Extracting '" + module.name + "' sources JAR to temporary merge directory");
+        csm.stepMsg("Extracting '" + module.name + "' sources JAR to temporary directory");
+
+        if(!module.isPackagedInArchive)
+        {
+            csm.na();
+            return;
+        }
 
         try
         {
@@ -590,7 +617,29 @@ public class Updater
              */
             case NEW:
             {
-                if(item == ModuleItem.ROOT_DIR)
+                if(module == Module.FTCROBOTCONTROLLER)
+                {
+                    if(item == ModuleItem.ROOT_DIR)
+                    {
+                        return stockDir + File.separator + module.name;
+                    }
+                    else if(item == ModuleItem.LIBS)
+                    {
+                        return stockDir + File.separator + module.name + File.separator + item.stdName;
+                    }
+                    else if(item == ModuleItem.MANIFEST)
+                    {
+                        return stockDir + File.separator + module.name + File.separator + "src" + File.separator + "main" + File.separator + item.stdName;
+                        //return getSrcMainPathForModule(module) + File.separator + item.stdName;
+                    }
+                    else
+                    {
+                        return stockDir + File.separator + module.name + File.separator + "src" + File.separator + "main" + File.separator + item.stdName;
+                        //return getPathForFolderInModuleSrcMain(module, item.stdName);
+                    }
+                }
+
+                else if(item == ModuleItem.ROOT_DIR)
                 {
                     throw new RuntimeException();
                 }
@@ -618,6 +667,18 @@ public class Updater
 
     private void checklist()
     {
+        long endTime = System.currentTimeMillis();
+
+        double delta = endTime - startTime;
+
+        DecimalFormat format = new DecimalFormat("#.##");
+
+        System.out.print((char)27 + "[47m");
+        System.out.print((char)27 + "[34m");
+
+        System.out.println();
+        System.out.println("Script completed successfully in " + format.format(delta/1000d) + " seconds");
+
         System.out.println();
         System.out.println("=======================================================");
         System.out.println("= Checklist of stuff to do after this script finishes =");
@@ -627,5 +688,8 @@ public class Updater
         System.out.println("1. Remove the version code and name for each library from its manifest");
         System.out.println("2. Update the version code and name for each library in its build.gradle file");
         System.out.println("3. Use AS to reformat all text files to LF line endings (select root project folder, File -> Line Endings -> LF)");
+        System.out.println();
+        System.out.print((char)27 + "[0m");
+
     }
 }

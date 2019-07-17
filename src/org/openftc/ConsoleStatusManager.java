@@ -28,7 +28,9 @@ public class ConsoleStatusManager
 
     void fail()
     {
+        System.out.print((char)27 + "[31m"); //red
         System.out.println(rightAlignResult("[FAIL]"));
+        System.out.print((char)27 + "[0m"); //end red
 
         System.exit(1);
     }
