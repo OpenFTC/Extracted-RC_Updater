@@ -522,7 +522,9 @@ public class Updater
 
         try
         {
-            new ZipFile(makeFileForModuleSourcesJar(module)).extractAll(TEMP_FOLDER_PATH + File.separator + module.name + "-sources");
+            String path = TEMP_FOLDER_PATH + File.separator + module.name + "-sources";
+            new ZipFile(makeFileForModuleSourcesJar(module)).extractAll(path);
+            FileUtil.deleteFolder(new File(path + File.separator + "META-INF"));
             csm.ok();
         }
         catch (Exception e)
