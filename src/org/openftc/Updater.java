@@ -24,6 +24,7 @@ package org.openftc;
 import net.lingala.zip4j.core.ZipFile;
 
 import java.io.File;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -193,8 +194,14 @@ public class Updater
 
         try
         {
-            manifestFile.delete();
-            csm.ok();
+            if(!manifestFile.delete())
+            {
+                csm.na();
+            }
+            else
+            {
+                csm.ok();
+            }
         }
         catch (Exception e)
         {

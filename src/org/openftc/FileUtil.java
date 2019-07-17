@@ -32,7 +32,7 @@ import java.util.zip.ZipOutputStream;
 
 class FileUtil
 {
-    static void deleteAllThingsInFolder(File folder)
+    static void deleteAllThingsInFolder(File folder) throws FileSystemException
     {
         File[] files = folder.listFiles();
 
@@ -48,20 +48,20 @@ class FileUtil
                 {
                     if(!f.delete())
                     {
-                        throw new RuntimeException();
+                        throw new FileSystemException("Cannot delete file");
                     }
                 }
             }
         }
     }
 
-    static void deleteFolder(File folder)
+    static void deleteFolder(File folder) throws FileSystemException
     {
         deleteAllThingsInFolder(folder);
 
         if(!folder.delete())
         {
-            throw new RuntimeException();
+            throw new FileSystemException("Cannot delete folder");
         }
     }
 
