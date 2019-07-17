@@ -405,7 +405,7 @@ public class Updater
 
             for(File f : newJavaSourceDir.listFiles())
             {
-                String outDir = getItemPath(Location.NEW, module, ModuleItem.JAVA_SOURCE) + File.separator + f.getName();
+                String outDir = getItemPath(Location.EXISTING, module, ModuleItem.JAVA_SOURCE) + File.separator + f.getName();
                 FileUtil.recursiveCopyDir(f.getAbsolutePath(), outDir);
             }
             csm.ok();
@@ -690,6 +690,5 @@ public class Updater
         System.out.println("3. Use AS to reformat all text files to LF line endings (select root project folder, File -> Line Endings -> LF)");
         System.out.println();
         System.out.print((char)27 + "[0m");
-
     }
 }
