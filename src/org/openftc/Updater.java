@@ -349,13 +349,10 @@ public class Updater
 
         try
         {
-            File newResourcesDir = getFileForItem(Location.NEW, module, ModuleItem.RESOURCES);
+            FileUtil.recursiveCopyDir(
+                    getItemPath(Location.NEW, module, ModuleItem.RESOURCES),
+                    getItemPath(Location.EXISTING, module, ModuleItem.RESOURCES));
 
-            for(File f : newResourcesDir.listFiles())
-            {
-                String outDir = getItemPath(Location.EXISTING, module, ModuleItem.RESOURCES) + File.separator + f.getName();
-                FileUtil.recursiveCopyDir(f.getAbsolutePath(), outDir);
-            }
             csm.ok();
         }
         catch (Exception e)
@@ -400,13 +397,10 @@ public class Updater
 
         try
         {
-            File newJavaSourceDir = getFileForItem(Location.NEW, module, ModuleItem.JAVA_SOURCE);
+            FileUtil.recursiveCopyDir(
+                    getItemPath(Location.NEW, module, ModuleItem.JAVA_SOURCE),
+                    getItemPath(Location.EXISTING, module, ModuleItem.JAVA_SOURCE));
 
-            for(File f : newJavaSourceDir.listFiles())
-            {
-                String outDir = getItemPath(Location.EXISTING, module, ModuleItem.JAVA_SOURCE) + File.separator + f.getName();
-                FileUtil.recursiveCopyDir(f.getAbsolutePath(), outDir);
-            }
             csm.ok();
         }
         catch (Exception e)
