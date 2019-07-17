@@ -79,7 +79,7 @@ public class Main
 
     private static void pause()
     {
-        System.out.println("Press Enter continue...");
+        System.out.println("Press Enter to continue...");
         try
         {
             System.in.read();
