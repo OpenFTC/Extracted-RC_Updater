@@ -101,8 +101,9 @@ public class Updater
     void run()
     {
         startTime = System.currentTimeMillis();
-        ensureWeAreInExtractedRcRepo();
-        checkThatStockSdkHasAars();
+
+        preliminaryCheckExistingMergeDir();
+        preliminaryCheckNewStockDir();
         prepareTempDir();
 
         for(Module module : Module.values())
@@ -414,9 +415,9 @@ public class Updater
         }
     }
 
-    private void ensureWeAreInExtractedRcRepo()
+    private void preliminaryCheckExistingMergeDir()
     {
-        csm.stepMsg("Running preliminary check on merge directory");
+        csm.stepMsg("Running preliminary check on existing merge directory");
 
         for(Module module : Module.values())
         {
@@ -426,7 +427,7 @@ public class Updater
             }
         }
 
-        if(!new File(existingMergeDir + File.separator + "FtcRobotController").exists())
+        if(!getFileForItem(Location.EXISTING, Module.FTCROBOTCONTROLLER, ModuleItem.ROOT_DIR).exists())
         {
             csm.fail();
         }
@@ -434,9 +435,9 @@ public class Updater
         csm.ok();
     }
 
-    private void checkThatStockSdkHasAars()
+    private void preliminaryCheckNewStockDir()
     {
-        csm.stepMsg("Running preliminary check on stock SDK");
+        csm.stepMsg("Running preliminary check on new stock SDK");
 
         for(Module module : Module.values())
         {
