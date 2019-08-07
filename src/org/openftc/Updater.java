@@ -687,7 +687,7 @@ public class Updater
         System.out.println("=======================================================");
         System.out.println();
 
-        System.out.println("1. Remove the version code and name for each library from its manifest");
+        System.out.println("1. Remove the version code, version name, and 'uses-sdk' tag for each library from its manifest");
         System.out.println("2. Update the version code and name for each library in its build.gradle file");
         System.out.println("3. Use AS to reformat all text files to LF line endings (select root project folder, File -> Line Endings -> LF)");
         System.out.println();
