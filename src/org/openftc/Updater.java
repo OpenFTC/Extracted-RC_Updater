@@ -46,7 +46,8 @@ public class Updater
         INSPECTION         ("Inspection",         true ),
         ONBOTJAVA          ("OnBotJava",          true ),
         BLOCKS             ("Blocks",             true ),
-        ROBOTSERVER        ("RobotServer",        true );
+        ROBOTSERVER        ("RobotServer",        true ),
+        VISION             ("Vision",             true );
 
         String name;
         boolean isPackagedInArchive;
@@ -356,9 +357,13 @@ public class Updater
 
         try
         {
-            FileUtil.recursiveCopyDir(
-                    getItemPath(Location.NEW, module, ModuleItem.RESOURCES),
-                    getItemPath(Location.EXISTING, module, ModuleItem.RESOURCES));
+            // Some modules may not have resources
+            if (new File(getItemPath(Location.NEW, module, ModuleItem.RESOURCES)).exists())
+            {
+                FileUtil.recursiveCopyDir(
+                        getItemPath(Location.NEW, module, ModuleItem.RESOURCES),
+                        getItemPath(Location.EXISTING, module, ModuleItem.RESOURCES));
+            }
 
             csm.ok();
         }
@@ -535,12 +540,12 @@ public class Updater
 
     private File makeFileForModuleSourcesJar(Module module)
     {
-        return new File(newStockDir + File.separator + "libs" + File.separator + module.name + "-release-sources.jar");
+        return new File(newStockDir + File.separator + "libs" + File.separator + module.name + "-sources.jar");
     }
 
     private File makeFileForModuleAar(Module module)
     {
-        return new File(newStockDir + File.separator + "libs" + File.separator + module.name + "-release.aar");
+        return new File(newStockDir + File.separator + "libs" + File.separator + module.name + ".aar");
     }
 
     private String getSrcMainPathForModule(Module module)
